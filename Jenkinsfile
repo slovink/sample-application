@@ -67,11 +67,9 @@ pipeline {
             }
         }
 
-    
-       stage('Deploy') {
-	       
-	     steps {
-                echo "Preparing Helm Repo ...."
+        stage ('Prepare Helm Repository') {
+            steps {
+                echo "preparing...."
                 cleanWs()
                  checkout([$class: 'GitSCM',
                      branches: [[name: "origin/${BranchName}"]],
@@ -81,7 +79,10 @@ pipeline {
                      userRemoteConfigs: [[
                          url: 'https://github.com/slovink/argocd-bluegreen.git']]]) 
             }
-              
+        }
+	    
+       stage('Deploy') {
+	               
             steps {
                 echo 'Deploying....'
                 
