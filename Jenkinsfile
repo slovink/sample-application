@@ -21,9 +21,8 @@ pipeline {
         string(defaultValue: "dev", description: 'What BranchName?', name: 'BranchName')    
         string(defaultValue: "sample", description: 'What servicename?', name: 'ServiceName')
         string(defaultValue: "latest", description: 'What buildVersion?', name: 'BuildVersion')
-        string(defaultValue: "5004", description: 'ServicePort', name: 'ServicePort')
-        string(defaultValue: "ClusterIP", description: 'servicetype', name: 'ServiceType')
 	string(defaultValue: "https://github.com/slovink/" , description: 'Source Code', name: 'SourceCodeRepo')
+        string(defaultValue: "kubecode", description: 'Docker Repository ', name: 'DockerRegistry')
         
 
 
@@ -81,10 +80,8 @@ pipeline {
                 if ("${REQUESTED_ACTION}"=='AddService')
                 
                 { sh'ls;'
-                sh'helm install --name ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --debug -f Charts/values.yaml --namespace ${NameSpace};'}
-                else
-                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --namespace ${NameSpace} --debug -f Charts/values.yaml --recreate-pods'}
-                
+                sh'echo deploy'}
+         
                 
                 }
                }
