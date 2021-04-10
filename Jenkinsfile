@@ -66,8 +66,21 @@ pipeline {
                 
             }
         }
+
     
        stage('Deploy') {
+	       
+	     steps {
+                echo "Preparing Helm Repo ...."
+                cleanWs()
+                 checkout([$class: 'GitSCM',
+                     branches: [[name: "origin/${BranchName}"]],
+                     doGenerateSubmoduleConfigurations: false,
+                     extensions: [[$class: 'LocalBranch']],
+                     submoduleCfg: [],
+                     userRemoteConfigs: [[
+                         url: 'https://github.com/slovink/argocd-bluegreen.git']]]) 
+            }
               
             steps {
                 echo 'Deploying....'
