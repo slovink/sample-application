@@ -1,7 +1,7 @@
 pipeline {
     agent {
     node {
-        label 'Worker'
+        label 'blue-green'
         customWorkspace '/home/jenkins/workspace/'
     }
 }
@@ -92,4 +92,5 @@ pipeline {
                }	   
         }
     }
+}
 }
