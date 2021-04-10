@@ -71,11 +71,19 @@ pipeline {
               
             steps {
                 echo 'Deploying....'
-                
-                script {
-                    sh 'helm init;'
-                    sh 'pwd;'
-                    
+	     }
+		    
+             steps {
+                echo "preparing Helm Repo...."
+                cleanWs()
+                 checkout([$class: 'GitSCM',
+                     branches: [[name: "origin/${BranchName}"]],
+                     doGenerateSubmoduleConfigurations: false,
+                     extensions: [[$class: 'LocalBranch']],
+                     submoduleCfg: [],
+                     userRemoteConfigs: [[
+                         url: 'https://github.com/slovink/argocd-bluegreen.git']]]) 
+                     
                     
                 if ("${REQUESTED_ACTION}"=='AddService')
                 
