@@ -61,8 +61,8 @@ pipeline {
             }
             steps {
                 
-                sh 'docker tag ${ServiceName}:${BuildVersion} ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
-                sh 'docker push ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
+                sh 'docker tag ${ServiceName}:${BuildVersion} ${DockerRegistry}/${ServiceName}:${EnvironmentName}-${BranchName}-${BUILD_NUMBER}'
+                sh 'docker push ${DockerRegistry}/${ServiceName}:${EnvironmentName}-${BranchName}-${BUILD_NUMBER}'
                 
             }
         }
