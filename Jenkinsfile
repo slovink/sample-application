@@ -1,31 +1,32 @@
 pipeline {
     agent {
     node {
-        label 'blue-green'
+        label 'Worker-platform'
         customWorkspace '/home/jenkins/workspace/'
     }
 }
     parameters {
         choice(
-            choices: ['Create', 'Test' , 'Build' , 'Deploy', 'Delete', 'Rollback'],
+            choices: ['Build' , 'AddService' , 'Deploy', 'Delete', 'Rollout'],
             description: '',
             name: 'REQUESTED_ACTION')
         choice(
-            choices: ['slv'],
+            choices: ['dev','uat','prod'],
             description: '',
-            name: 'ProjectName')
+            name: 'NameSpace')
         choice(
             choices: ['DEV', 'UAT', 'PROD'],
             description: '',
             name: 'EnvironmentName')
-		choice(
-		    choices: ['sample', 'app1' , 'app2' , 'app3'],
-			description: 'Select Application Which you want to deploy',
-			name: 'ServiceName')
-		string(defaultValue: "master", description: 'What BranchName?', name: 'BranchName')    
-    string(defaultValue: "latest", description: 'What buildVersion?', name: 'BuildVersion')
-		string(defaultValue: "https://github.com/slovink/" , description: 'Source Code', name: 'SourceCodeRepo')
-		string(defaultValue: "kubecode", description: 'Docker Repository ', name: 'DockerRegistry')
+        string(defaultValue: "dev", description: 'What BranchName?', name: 'BranchName')    
+        string(defaultValue: "sample", description: 'What servicename?', name: 'ServiceName')
+        string(defaultValue: "latest", description: 'What buildVersion?', name: 'BuildVersion')
+        string(defaultValue: "5004", description: 'ServicePort', name: 'ServicePort')
+        string(defaultValue: "ClusterIP", description: 'servicetype', name: 'ServiceType')
+	string(defaultValue: "https://github.com/slovink/" , description: 'Source Code', name: 'SourceCodeRepo')
+        
+
+
     }
     stages {
         
@@ -39,58 +40,54 @@ pipeline {
                      doGenerateSubmoduleConfigurations: false,
                      extensions: [[$class: 'LocalBranch']],
                      submoduleCfg: [],
-                userRemoteConfigs: [[
-                         url: '${SourceCodeRepo}/${ServiceName}-application.git']]])     
+                     userRemoteConfigs: [[
+                         url: '${SourceCodeRepo}/${ServiceName}-application.git']]]) 
             }
         }
         stage('Build') {
             when {
                 
-                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'Test' }
+                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'AddService' }
             }
             steps {
                 echo 'Building..'
-				
-                sh 'echo Testing' 
-                            }
+                
+                sh 'docker build -t ${ServiceName}:${BuildVersion} .'
+
+            }
         }
         stage('Docker build and publish') {
             when {
-                expression { params.REQUESTED_ACTION == 'Build'  }
+                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'AddService' }
             }
             steps {
                 
-	        sh 'docker build -t ${ServiceName}:${BuildVersion} .'
-                sh 'docker tag ${ServiceName}:${BuildVersion}  ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
-                sh 'docker login'
+                sh 'docker tag ${ServiceName}:${BuildVersion} ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
                 sh 'docker push ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
                 
             }
         }
     
         stage('Deploy') {
-		    when {
-			    expression { params.REQUESTED_ACTION == 'Deploy'  }
               
             steps {
                 echo 'Deploying....'
-			    
-                                        
+                
+                script {
+                    sh 'helm init;'
+                    sh 'pwd;'
+                    
+                    
+                if ("${REQUESTED_ACTION}"=='AddService')
+                
+                { sh'ls;'
+                sh'helm install --name ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --debug -f Charts/values.yaml --namespace ${NameSpace};'}
+                else
+                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --namespace ${NameSpace} --debug -f Charts/values.yaml --recreate-pods'}
+                
+                
                 }
-				
                }
-		stage('Delete') {
-		    when {
-			    expression { params.REQUESTED_ACTION == 'Delete'  }
-              
-            steps {
-                echo 'Destroying....'
-		   
-                                        
-                }
-				
-               }	   
         }
-    }
     }
 }
