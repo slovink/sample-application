@@ -74,7 +74,7 @@ pipeline {
               
             steps {
                 echo 'Deploying....'
-				sh ' '      
+			    
                                         
                 }
 				
@@ -85,12 +85,11 @@ pipeline {
               
             steps {
                 echo 'Destroying....'
-				sh ' '      
+		   
                                         
                 }
 				
                }	   
         }
     }
-}
 }
