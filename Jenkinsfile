@@ -84,19 +84,7 @@ pipeline {
                      userRemoteConfigs: [[
                          url: 'https://github.com/slovink/argocd-bluegreen.git']]]) 
 	     }
-		steps {
-			
-	        script {
-                    sh 'helm init;'
-                    sh 'pwd;'
-                if ("${REQUESTED_ACTION}"=='AddService')
-                
-                { sh'ls;'
-                sh'echo deploy'}
-         
-                
-                }
-               }
+		
         }
     }
 }
