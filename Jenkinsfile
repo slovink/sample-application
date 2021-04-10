@@ -60,7 +60,7 @@ pipeline {
             }
             steps {
                 
-				        sh 'docker build -t ${ServiceName}:${BuildVersion} .'
+	        sh 'docker build -t ${ServiceName}:${BuildVersion} .'
                 sh 'docker tag ${ServiceName}:${BuildVersion}  ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
                 sh 'docker login'
                 sh 'docker push ${DockerRegistry}/${ServiceName}:${BuildVersion}-${EnvironmentName}-${BranchName}'
