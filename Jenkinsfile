@@ -1,7 +1,7 @@
 pipeline {
     agent {
     node {
-        label 'Worker-platform'
+        label 'blue-green'
         customWorkspace '/home/jenkins/workspace/'
     }
 }
