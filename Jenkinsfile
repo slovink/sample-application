@@ -18,7 +18,7 @@ pipeline {
             choices: ['DEV', 'UAT', 'PROD'],
             description: '',
             name: 'EnvironmentName')
-        string(defaultValue: "dev", description: 'What BranchName?', name: 'BranchName')    
+        string(defaultValue: "main", description: 'What BranchName?', name: 'BranchName')    
         string(defaultValue: "sample", description: 'What servicename?', name: 'ServiceName')
         string(defaultValue: "latest", description: 'What buildVersion?', name: 'BuildVersion')
 	string(defaultValue: "https://github.com/slovink/" , description: 'Source Code', name: 'SourceCodeRepo')
