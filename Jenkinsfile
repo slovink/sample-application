@@ -87,16 +87,16 @@ pipeline {
                 echo 'Deploying....'
                 
                 script {
-                    sh 'helm init;'
+                   
                     sh 'pwd;'
                     
                     
                 if ("${REQUESTED_ACTION}"=='AddService')
                 
                 { sh'ls;'
-                sh'helm install --name ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --debug -f Charts/values.yaml --namespace ${NameSpace};'}
+                sh'helm install --name ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --debug -f Charts/values.yaml --namespace ${NameSpace};'}
                 else
-                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion}-${EnvironmentName}-${BranchName},service.type=${ServiceType},service.port=${ServicePort},image.repository=${DockerRegistry}/${ServiceName},resources.limits.cpu=${CpuLimit},resources.requests.cpu=${CpuRequests},resources.limits.memory=${MemoryLimit},resources.requests.memory=${MemoryRequests},consulAddress=${ConsulAddress},replicaCount=${ReplicaCount} --namespace ${NameSpace} --debug -f Charts/values.yaml --recreate-pods'}
+                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} Charts --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f Charts/values.yaml '}
                 
                 
                 }
