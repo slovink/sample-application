@@ -15,7 +15,7 @@ pipeline {
             description: '',
             name: 'NameSpace')
         choice(
-            choices: ['DEV', 'UAT', 'PROD'],
+            choices: ['dev', 'uat', 'prod'],
             description: '',
             name: 'EnvironmentName')
         string(defaultValue: "main", description: 'What BranchName?', name: 'BranchName')    
