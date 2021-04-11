@@ -94,9 +94,9 @@ pipeline {
                 if ("${REQUESTED_ACTION}"=='AddService')
                 
                 { sh'ls;'
-                sh'helm install  ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --debug -f Charts/values.yaml --namespace ${NameSpace};'}
+                sh'helm install  ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --debug -f ${ServiceName}/values.yaml --namespace ${NameSpace};'}
                 else
-                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f Charts/values.yaml '}
+                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f ${ServiceName}/values.yaml '}
                 
                 
                 }
