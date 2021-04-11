@@ -7,7 +7,7 @@ pipeline {
 }
     parameters {
         choice(
-            choices: ['Build' , 'AddService' , 'Deploy', 'Delete', 'Rollout'],
+            choices: ['Create' , 'Update', 'Delete', 'Rollout'],
             description: '',
             name: 'REQUESTED_ACTION')
         choice(
@@ -20,7 +20,7 @@ pipeline {
             name: 'EnvironmentName')
         string(defaultValue: "main", description: 'What BranchName?', name: 'BranchName')    
         string(defaultValue: "sample", description: 'What servicename?', name: 'ServiceName')
-        string(defaultValue: "latest", description: 'What buildVersion?', name: 'BuildVersion')
+        string(defaultValue: "latest", description: 'What buildVersion? Required when you are Choosing Rollout Option', name: 'BuildVersion')
 	string(defaultValue: "https://github.com/slovink/" , description: 'Source Code', name: 'SourceCodeRepo')
         string(defaultValue: "kubecode", description: 'Docker Repository ', name: 'DockerRegistry')
         
@@ -46,7 +46,7 @@ pipeline {
         stage('Build') {
             when {
                 
-                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'AddService' }
+                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'Create' }
             }
             steps {
                 echo 'Building..'
@@ -57,7 +57,7 @@ pipeline {
         }
         stage('Docker build and publish') {
             when {
-                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'AddService' }
+                expression { params.REQUESTED_ACTION == 'Build' || params.REQUESTED_ACTION == 'Create' }
             }
             steps {
                 
@@ -91,16 +91,34 @@ pipeline {
                     sh 'pwd;'
                     
                     
-                if ("${REQUESTED_ACTION}"=='AddService')
+                if ("${REQUESTED_ACTION}"=='Create')
                 
                 { sh'ls;'
                 sh'helm install  ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --debug -f ${ServiceName}/values.yaml --namespace ${NameSpace};'}
                 else
-                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f ${ServiceName}/values.yaml '}
-                
+                {sh 'helm upgrade ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${EnvironmentName}-${BranchName}-${BUILD_NUMBER},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f ${ServiceName}/values.yaml '}              
                 
                 }
                }
         }
+       stage('Rollout') {
+	               
+            steps {
+                echo 'Deploying....'
+                
+                script {
+                   
+                    sh 'pwd;'
+                    
+                    
+                if ("${REQUESTED_ACTION}"=='Rollout')
+                
+                { sh'ls;'
+                sh 'helm upgrade ${ServiceName}-${EnvironmentName} ${ServiceName} --set name=${ServiceName},namespace=${NameSpace},image.tag=${BuildVersion},image.repository=${DockerRegistry}/${ServiceName} --namespace ${NameSpace} --debug -f ${ServiceName}/values.yaml '}
+            
+                }
+               }
+        }	    
+	    
     }
 }
