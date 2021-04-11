@@ -72,7 +72,7 @@ pipeline {
                 echo "preparing...."
                 cleanWs()
                  checkout([$class: 'GitSCM',
-                     branches: [[name: "origin/${BranchName}"]],
+                     branches: [[name: "origin/master"]],
                      doGenerateSubmoduleConfigurations: false,
                      extensions: [[$class: 'LocalBranch']],
                      submoduleCfg: [],
